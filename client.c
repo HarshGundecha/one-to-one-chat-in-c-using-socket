@@ -58,15 +58,16 @@ int main(int argc, char **argv)
 	port = argv[2];
 	clientfd = open_clientfd(host, port);
 	printf("\nEnter message : ");
-	while (fgets(buf, MAXLINE, stdin) != NULL)
-	{
-		write(clientfd, buf, strlen(buf));
-		read(clientfd, buf, MAXLINE);
-		fputs(buf, stdout);
-		if (buf[0] == '\n')
-			break;
-		printf("\nEnter message : ");
-	}
+	if(clientfd!=-1)
+		while (fgets(buf, MAXLINE, stdin) != NULL)
+		{
+			write(clientfd, buf, strlen(buf));
+			read(clientfd, buf, MAXLINE);
+			fputs(buf, stdout);
+			if (buf[0] == '\n')
+				break;
+			printf("\nEnter message : ");
+		}
 	close(clientfd);
 	exit(0);
 }
