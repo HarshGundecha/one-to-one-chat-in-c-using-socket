@@ -5,7 +5,7 @@
 #include<string.h>
 #define MAXLINE 8000
 #define LISTENQ 1000
-
+#define ABS(N) ((N<0)?(-N):(N))
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_YELLOW  "\x1b[33m"
@@ -49,8 +49,25 @@ int open_client_fd(char *port)
 	freeaddrinfo(listp);
 	return ((((listen(listenfd, LISTENQ) < 0) && (close(listenfd) == 0 && (errorno=-3))) || !p) ? errorno : listenfd );
 }
+
+int GetClientFD(int listenfd)
+{
+	if(listenfd < 0)
+		return listenfd;
+	socklen_t clientlen;
+	sockaddr_storage clientaddr;
+	char client_hostname[MAXLINE], client_port[MAXLINE];
+	printf("Waiting for a client to connect\n");
+	clientlen = sizeof(clientaddr);
+	int connfd = accept(listenfd, (sockaddr *)&clientaddr, &clientlen);
+	getnameinfo((sockaddr *)&clientaddr, clientlen, client_hostname, MAXLINE, client_port, MAXLINE, 0);
+	return connfd;
+}
+
 int ReadWriteToFD(int connfd)
 {
+	if(connfd < 0 )
+		return connfd;
 	size_t n;
 	char buf[MAXLINE];
 	int tmp;
@@ -76,20 +93,7 @@ int ReadWriteToFD(int connfd)
 	return connfd;
 }
 
-int GetClientFD(int listenfd)
-{
-	socklen_t clientlen;
-	sockaddr_storage clientaddr;
-	char client_hostname[MAXLINE], client_port[MAXLINE];
-	printf("Waiting for a client to connect\n");
-	clientlen = sizeof(clientaddr);
-	int connfd = accept(listenfd, (sockaddr *)&clientaddr, &clientlen);
-	getnameinfo((sockaddr *)&clientaddr, clientlen, client_hostname, MAXLINE, client_port, MAXLINE, 0);
-	return connfd;
-}
-
 int main(int argc, char* argv[])
 {
-	close( ReadWriteToFD( GetClientFD( open_client_fd( argv[1] ) ) ) );
-	return 0;
+	return ABS(close( ReadWriteToFD( GetClientFD( open_client_fd( argv[1] ) ) ) ) );
 }

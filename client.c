@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <netdb.h>
-
+#define ABS(N) ((N<0)?(-N):(N))
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_YELLOW  "\x1b[33m"
@@ -45,6 +45,8 @@ int open_clientfd(char *hostname, char *port)
 
 int ReadWriteMessageToFD(int connfd)
 {
+	if(connfd < 0)
+		return connfd;
 	int tmp;
 	char buf[MAXLINE];
 	printf("\nWrite : ");
@@ -72,6 +74,5 @@ int ReadWriteMessageToFD(int connfd)
 
 int main(int argc, char **argv)
 {
-	close( ReadWriteMessageToFD( open_clientfd( argv[1], argv[2]) ) );
-	return 0;
+	return ABS( close( ReadWriteMessageToFD( open_clientfd( argv[1], argv[2]) ) ) );
 }
