@@ -18,6 +18,7 @@
 #define	MAXLINE	 8192 
 int open_clientfd(char *hostname, char *port)
 {
+	//validate parameters here
 	int clientfd, flags=NI_NUMERICHOST | NI_NUMERICSERV;
 	struct addrinfo hints, *listp, *p;
 	char host[MAXLINE],service[MAXLINE];

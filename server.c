@@ -20,6 +20,7 @@ typedef struct sockaddr_storage sockaddr_storage;
 //typedef char[MAXLINE] maxchar;
 int open_client_fd(char *port)
 {
+	// validate parameters here
 	addrinfo hints, *listp, *p;
 	int listenfd, optval=1, flags = NI_NUMERICHOST | NI_NUMERICSERV, errorno=0; 
 	char host[MAXLINE],service[MAXLINE];
