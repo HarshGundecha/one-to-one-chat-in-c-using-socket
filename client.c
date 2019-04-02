@@ -48,22 +48,23 @@ int ReadWriteMessageToFD(int connfd)
 {
 	if(connfd < 0)
 		return connfd;
-	int tmp;
-	char buf[MAXLINE];
+	int ReadCount;
+	char TmpStr[MAXLINE];
 	printf("\nWrite : ");
 	fflush(stdin);
-	while (fgets(buf, MAXLINE, stdin) != NULL)
+	while (fgets(TmpStr, MAXLINE, stdin) != NULL)
 	{
-		write(connfd, buf, strlen(buf));
-		if(strcmp("EXIT\n", buf)==0)
+		TmpStr[strlen(TmpStr)-1]='\0';
+		write(connfd, TmpStr, strlen(TmpStr));
+		if(strcmp("EXIT", TmpStr)==0)
 		{
 			printf("Chat Ended\n");			
 			break;
 		}
-		tmp=read(connfd, buf, MAXLINE);
-		buf[tmp]='\0';
-		printf("Read : " ANSI_COLOR_GREEN"%s" ANSI_COLOR_RESET, buf);
-		if (buf[0] == '\n' || strcmp("EXIT\n", buf)==0)
+		ReadCount=read(connfd, TmpStr, MAXLINE);
+		TmpStr[ReadCount]='\0';
+		printf("Read : " ANSI_COLOR_GREEN"%s\n" ANSI_COLOR_RESET, TmpStr);
+		if (TmpStr[0] == '\0' || strcmp("EXIT", TmpStr)==0)
 		{
 			printf("Chat Ended\n");
 			break;
@@ -72,43 +73,6 @@ int ReadWriteMessageToFD(int connfd)
 	}
 	return connfd;
 }
-
-
-// int FileTransferTrial(int connfd)
-// {
-// 	if(connfd < 0)
-// 		return connfd;
-// 	int tmp;
-// 	char buf[MAXLINE];
-// 	printf("\nWrite : ");
-// 	fflush(stdin);
-// 	while (fgets(buf, MAXLINE, stdin) != NULL)
-// 	{
-// 		write(connfd, buf, strlen(buf));
-// 		//char tmpstr[500]={"tempo.txt"};
-// 		// strcpy(tmp, buf);
-// 		// tmp[strlen(tmp)-1]='\0';
-// 		// if(strcmp("EXIT\n", buf)==0)
-// 		// {
-// 		// 	printf("Chat Ended\n");			
-// 		// 	break;
-// 		// }
-// 		tmp=read(connfd, buf, MAXLINE);
-// 		buf[tmp]='\0';
-// 		printf("Read : " ANSI_COLOR_GREEN"%s" ANSI_COLOR_RESET, buf);
-// 		FILE *fp = fopen("ClientFile.txt", "wb");
-// 		fwrite(buf, 1, strlen(buf), fp);
-// 		fclose(fp);
-// 		// if (buf[0] == '\n' || strcmp("EXIT\n", buf)==0)
-// 		// {
-// 		// 	printf("Chat Ended\n");
-// 		// 	break;
-// 		// }
-// 		printf("Write : ");
-// 	}
-// 	return connfd;
-// }
-
 
 int main(int argc, char **argv)
 {

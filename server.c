@@ -70,23 +70,24 @@ int ReadWriteToFD(int connfd)
 {
 	if(connfd < 0 )
 		return connfd;
-	size_t n;
-	char buf[MAXLINE];
+	size_t ReadCount;
+	char TmpStr[MAXLINE];
 	int tmp;
-	while((n=read(connfd, buf, MAXLINE)) != 0)
+	while((ReadCount=read(connfd, TmpStr, MAXLINE)) != 0)
 	{
-		buf[n]='\0';
-		printf("Read : " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET, buf);
-		if(strcmp("EXIT\n", buf)==0)
+		TmpStr[ReadCount]='\0';
+		printf("Read : " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, TmpStr);
+		if(strcmp("EXIT", TmpStr)==0)
 		{
 			printf("Chat Ended\n");
 			break;
 		}
 		printf("Write : ");
 		fflush(stdin);
-		fgets(buf, MAXLINE, stdin);
-		write(connfd, buf, strlen(buf));
-		if(strcmp("EXIT\n", buf)==0)
+		fgets(TmpStr, MAXLINE, stdin);
+		TmpStr[strlen(TmpStr)-1]='\0';
+		write(connfd, TmpStr, strlen(TmpStr));
+		if(strcmp("EXIT", TmpStr)==0)
 		{
 			printf("Chat Ended\n");			
 			break;
@@ -94,44 +95,6 @@ int ReadWriteToFD(int connfd)
 	}
 	return connfd;
 }
-
-
-// int FIleDownloadTrial(int connfd)
-// {
-// 	if(connfd < 0 )
-// 		return connfd;
-// 	size_t n;
-// 	char buf[MAXLINE];
-// 	int tmp;
-// 	while((n=read(connfd, buf, MAXLINE)) != 0)
-// 	{
-// 		buf[n]='\0';
-// 		//printf("%d\n", (int)strlen(buf));
-// 		printf("Read : " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET, buf);
-// 		// if(strcmp("EXIT\n", buf)==0)
-// 		// {
-// 		// 	printf("Chat Ended\n");
-// 		// 	break;
-// 		// }
-// 		//printf("Write : ");
-// 		fflush(stdin);
-// 		buf[strlen(buf)-1]='\0';
-// 		FILE *fp;
-// 		fp = fopen(buf, "rb");
-// 		fseek (fp, 0, SEEK_END);
-// 		int length = ftell (fp);
-// 		fseek (fp, 0, SEEK_SET);
-//     fread (buf, 1, length, fp);
-// 		fclose(fp);
-// 		write(connfd, buf, strlen(buf));
-// 		// if(strcmp("EXIT\n", buf)==0)
-// 		// {
-// 		// 	printf("Chat Ended\n");			
-// 		// 	break;
-// 		// }
-// 	}
-// 	return connfd;
-// }
 
 
 int main(int argc, char* argv[])
