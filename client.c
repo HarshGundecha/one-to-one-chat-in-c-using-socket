@@ -14,41 +14,41 @@
 #define ExitCheckMacro(TmpStr) if(strcmp("EXIT",TmpStr)==0){printf("Chat Ended\n");break;}
 #define printf2ndGreen(str1,str2)	printf("%s" ANSI_COLOR_GREEN"%s\n" ANSI_COLOR_RESET, str1, str2)
 #define RemoveTrailingNewLineChar(TmpStr) TmpStr[strlen(TmpStr)-1]='\0'
-
-int open_clientfd(char *hostname, char *port)
+typedef struct addrinfo addrinfo;
+int open_client_fd(char *hostname, char *port)
 {
 	//validate parameters here
-	struct addrinfo hints, *listp, *p;
-	int clientfd, flags=NI_NUMERICHOST | NI_NUMERICSERV, errorno;
+	addrinfo hints, *listp, *p;
+	int SocketFD, flags = NI_NUMERICHOST | NI_NUMERICSERV, errorno = 0;
 	char host[MAXLINE],service[MAXLINE];
-	memset(&hints, 0, sizeof(struct addrinfo));
+	memset(&hints, 0, sizeof(hints));
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_NUMERICSERV | AI_ADDRCONFIG;
+	hints.ai_flags = AI_ADDRCONFIG | AI_NUMERICSERV;
 	getaddrinfo(hostname, port, &hints, &listp);
-	for (p = listp; p; p = p->ai_next)
-		if ((clientfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) 
+	for(p = listp; p; p = p->ai_next)
+		if((SocketFD = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) 
 		{
 			errorno = -1;
 			continue;
 		}
-
 		else
 		{			
+
 			getnameinfo(p->ai_addr, p->ai_addrlen, host, MAXLINE, service, MAXLINE, flags);
 			printf("Host : %s | Service : %s\n",host, service);
-			if (connect(clientfd, p->ai_addr, p->ai_addrlen) != -1) 
+			if(connect(SocketFD, p->ai_addr, p->ai_addrlen) == 0)
 			{
 				printf("Connected to Server : %s at Port : %s\n", host, service);
 				break;
 			}
 			else
 			{
-				close(clientfd);
+				close(SocketFD);
 				errorno = -2;				
 			}
 		}
 	freeaddrinfo(listp);
-	return (!p?errorno:clientfd);
+	return (!p?errorno:SocketFD);
 }
 
 int ReadWriteMessageToFD(int connfd)
@@ -71,6 +71,6 @@ int ReadWriteMessageToFD(int connfd)
 
 int main(int argc, char **argv)
 {
-	short tmp = close( ReadWriteMessageToFD( open_clientfd( argv[1], argv[2]) ) );
+	short tmp = close( ReadWriteMessageToFD( open_client_fd( argv[1], argv[2]) ) );
 	return ABS(tmp);
 }

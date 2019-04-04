@@ -23,36 +23,36 @@ int open_client_fd(char *port)
 {
 	// validate parameters here
 	addrinfo hints, *listp, *p;
-	int listenfd, optval=1, flags = NI_NUMERICHOST | NI_NUMERICSERV, errorno=0; 
+	int SocketFD, flags = NI_NUMERICHOST | NI_NUMERICSERV, errorno = 0, optval = 1; 
 	char host[MAXLINE],service[MAXLINE];
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG | AI_NUMERICSERV;
-	getaddrinfo(NULL, port, &hints, &listp);
+	hints.ai_flags = AI_ADDRCONFIG | AI_NUMERICSERV | AI_PASSIVE; // AI_PASSIVE only for server
+	getaddrinfo(NULL, port, &hints, &listp); // NULL | hostname
 	for(p = listp; p; p = p->ai_next)
-		if((listenfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol))<0)
+		if((SocketFD = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
 		{
-			continue;
 			errorno = -1;
+			continue;
 		}
 		else
 		{
-			setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
+			setsockopt(SocketFD, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int)); //server
 			getnameinfo(p->ai_addr, p->ai_addrlen, host, MAXLINE, service, MAXLINE, flags);
 			printf("Host : %s | Service : %s\n",host, service);
-			if(bind(listenfd, p->ai_addr, p->ai_addrlen) == 0)
+			if(bind(SocketFD, p->ai_addr, p->ai_addrlen) == 0) // bind | connect
 			{
-				printf("Connected to Client : %s at Port : %s\n", host, service);
+				printf("Connected to Client : %s at Port : %s\n", host, service); // Client | Server
 				break;
 			}
 			else
 			{
-				close(listenfd);
+				close(SocketFD);
 				errorno = -2;
 			}
 		}
-	freeaddrinfo(listp);
-	return ((((listen(listenfd, LISTENQ) < 0) && (close(listenfd) == 0 && (errorno=-3))) || !p) ? errorno : listenfd );
+	freeaddrinfo(listp); // below line
+	return ((((listen(SocketFD, LISTENQ) < 0) && (close(SocketFD) == 0 && (errorno=-3))) || !p) ? errorno : SocketFD );
 }
 
 int GetClientFD(int listenfd)
