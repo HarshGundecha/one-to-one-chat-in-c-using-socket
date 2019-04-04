@@ -3,21 +3,22 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+
 #define MAXLINE 8000
 #define LISTENQ 1000
-#define ABS(N) ((N<0)?(-N):(N))
-#define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
+
+#define ABS(N) ((N<0)?(-N):(N))
+#define ExitCheckMacro(TmpStr) if(strcmp("EXIT",TmpStr)==0){printf("Chat Ended\n");break;}
+#define printf2ndGreen(str1,str2)	printf("%s" ANSI_COLOR_GREEN"%s\n" ANSI_COLOR_RESET, str1, str2)
+#define RemoveTrailingNewLineChar(TmpStr) TmpStr[strlen(TmpStr)-1]='\0'
 
 typedef struct addrinfo addrinfo;
 typedef struct sockaddr sockaddr;
 typedef struct sockaddr_storage sockaddr_storage;
 //typedef char[MAXLINE] maxchar;
+
 int open_client_fd(char *port)
 {
 	// validate parameters here
@@ -40,7 +41,10 @@ int open_client_fd(char *port)
 			getnameinfo(p->ai_addr, p->ai_addrlen, host, MAXLINE, service, MAXLINE, flags);
 			printf("Host : %s | Service : %s\n",host, service);
 			if(bind(listenfd, p->ai_addr, p->ai_addrlen) == 0)
+			{
+				printf("Connected to Client : %s at Port : %s\n", host, service);
 				break;
+			}
 			else
 			{
 				close(listenfd);
@@ -72,26 +76,17 @@ int ReadWriteToFD(int connfd)
 		return connfd;
 	size_t ReadCount;
 	char TmpStr[MAXLINE];
-	int tmp;
 	while((ReadCount=read(connfd, TmpStr, MAXLINE)) != 0)
 	{
 		TmpStr[ReadCount]='\0';
-		printf("Read : " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, TmpStr);
-		if(strcmp("EXIT", TmpStr)==0)
-		{
-			printf("Chat Ended\n");
-			break;
-		}
-		printf("Write : ");
+		printf2ndGreen("Read : ", TmpStr);
+		ExitCheckMacro(TmpStr);
 		fflush(stdin);
+		printf("Write : ");
 		fgets(TmpStr, MAXLINE, stdin);
-		TmpStr[strlen(TmpStr)-1]='\0';
+		RemoveTrailingNewLineChar(TmpStr);
 		write(connfd, TmpStr, strlen(TmpStr));
-		if(strcmp("EXIT", TmpStr)==0)
-		{
-			printf("Chat Ended\n");			
-			break;
-		}
+		ExitCheckMacro(TmpStr);
 	}
 	return connfd;
 }
@@ -99,5 +94,6 @@ int ReadWriteToFD(int connfd)
 
 int main(int argc, char* argv[])
 {
-	return ABS(close( ReadWriteToFD( GetClientFD( open_client_fd( argv[1] ) ) ) ) );
+	short tmp = close( ReadWriteToFD( GetClientFD( open_client_fd( argv[1] ) ) ) );
+	return ABS( tmp );
 }
