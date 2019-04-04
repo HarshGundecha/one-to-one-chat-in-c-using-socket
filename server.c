@@ -13,13 +13,15 @@
 #define ExitCheckMacro(TmpStr) if(strcmp("EXIT",TmpStr)==0){printf("Chat Ended\n");break;}
 #define printf2ndGreen(str1,str2)	printf("%s" ANSI_COLOR_GREEN"%s\n" ANSI_COLOR_RESET, str1, str2)
 #define RemoveTrailingNewLineChar(TmpStr) TmpStr[strlen(TmpStr)-1]='\0'
+#define open_client_fd(port) open_clientfd('s',NULL,port)
+#define ConnectOrBind(u,x,y,z) ((u=='s') ? (bind(x,y,z)) : (connect(x,y,z))) 
 
 typedef struct addrinfo addrinfo;
 typedef struct sockaddr sockaddr;
 typedef struct sockaddr_storage sockaddr_storage;
 //typedef char[MAXLINE] maxchar;
 
-int open_client_fd(char *port)
+int open_clientfd(char user, char *hostname, char *port)
 {
 	// validate parameters here
 	addrinfo hints, *listp, *p;
@@ -27,8 +29,10 @@ int open_client_fd(char *port)
 	char host[MAXLINE],service[MAXLINE];
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_ADDRCONFIG | AI_NUMERICSERV | AI_PASSIVE; // AI_PASSIVE only for server
-	getaddrinfo(NULL, port, &hints, &listp); // NULL | hostname
+	hints.ai_flags = AI_ADDRCONFIG | AI_NUMERICSERV;
+	if(user == 's')
+		hints.ai_flags |= AI_PASSIVE;
+	getaddrinfo(hostname, port, &hints, &listp);
 	for(p = listp; p; p = p->ai_next)
 		if((SocketFD = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
 		{
@@ -37,12 +41,13 @@ int open_client_fd(char *port)
 		}
 		else
 		{
-			setsockopt(SocketFD, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int)); //server
+			if(user == 's')
+				setsockopt(SocketFD, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
 			getnameinfo(p->ai_addr, p->ai_addrlen, host, MAXLINE, service, MAXLINE, flags);
 			printf("Host : %s | Service : %s\n",host, service);
-			if(bind(SocketFD, p->ai_addr, p->ai_addrlen) == 0) // bind | connect
+			if(ConnectOrBind(user , SocketFD, p->ai_addr, p->ai_addrlen) == 0)
 			{
-				printf("Connected to Client : %s at Port : %s\n", host, service); // Client | Server
+				printf("Connected to %s : %s at Port : %s\n", ((user == 's')?("Client"):("Server")), host, service);
 				break;
 			}
 			else
@@ -51,8 +56,11 @@ int open_client_fd(char *port)
 				errorno = -2;
 			}
 		}
-	freeaddrinfo(listp); // below line
-	return ((((listen(SocketFD, LISTENQ) < 0) && (close(SocketFD) == 0 && (errorno=-3))) || !p) ? errorno : SocketFD );
+	freeaddrinfo(listp);
+	if(user == 's')
+		return ((((listen(SocketFD, LISTENQ) < 0) && (close(SocketFD) == 0 && (errorno=-3))) || !p) ? errorno : SocketFD );
+	else
+		return (!p?errorno:SocketFD);
 }
 
 int GetClientFD(int listenfd)
