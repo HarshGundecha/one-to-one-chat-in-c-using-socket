@@ -1,10 +1,7 @@
-gcc -c socketconn.c -o socketconn.o
-gcc -c socketchat.c -o socketchat.o
-ar rs libmysocketchat.a socketconn.o socketchat.o
-gcc -c server.c -o server.o
-gcc server.o libmysocketchat.a -pthread -o server.out
-./server.out 2222
+#run below listed 2 shell files in 2 different terminals
+# ./server.sh <port_number>
+./server.sh 2222
 
-gcc -c client.c -o client.o
-gcc client.o libmysocketchat.a -pthread -o client.out
-./client.out 0.0.0.0 2222
+# ./client.sh <port_number>
+./client.sh 2222
+
