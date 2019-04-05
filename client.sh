@@ -1,3 +1,3 @@
-gcc -c client.c -o client.o
-gcc client.o libmysocketchat.a -pthread -o client.out
-./client.out 0.0.0.0 $1
+gcc -c ./src/client.c -o ./obj/client.o
+gcc ./obj/client.o ./obj/libmysocketchat.a -pthread -o ./bin/client.out
+./bin/client.out $1 $2

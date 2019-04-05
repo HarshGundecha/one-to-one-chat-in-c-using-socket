@@ -2,6 +2,6 @@
 # ./server.sh <port_number>
 ./server.sh 2222
 
-# ./client.sh <port_number>
-./client.sh 2222
+# ./client.sh <host_ip> <port_number>
+./client.sh 0.0.0.0 2222
 

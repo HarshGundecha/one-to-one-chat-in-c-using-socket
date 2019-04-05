@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<unistd.h>
-#include "socketchat.h"
-#include "socketconn.h"
+#include "../include/socketchat.h"
+#include "../include/socketconn.h"
 
 //#main()
 #define ABS(N) ((N<0)?(-N):(N))

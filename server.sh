@@ -1,6 +1,6 @@
-gcc -c socketconn.c -o socketconn.o
-gcc -c socketchat.c -o socketchat.o
-ar rs libmysocketchat.a socketconn.o socketchat.o
-gcc -c server.c -o server.o
-gcc server.o libmysocketchat.a -pthread -o server.out
-./server.out $1
+gcc -c ./lib/socketconn.c -o ./obj/socketconn.o
+gcc -c ./lib/socketchat.c -o ./obj/socketchat.o
+ar rs ./obj/libmysocketchat.a ./obj/socketconn.o ./obj/socketchat.o
+gcc -c ./src/server.c -o ./obj/server.o
+gcc ./obj/server.o ./obj/libmysocketchat.a -pthread -o ./bin/server.out
+./bin/server.out $1
