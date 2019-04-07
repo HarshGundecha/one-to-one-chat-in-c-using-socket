@@ -1,0 +1,89 @@
+#download system
+	client requests a file
+		receives the binary bytes
+		puts them to a file named as requested file
+		closes the file
+	server searched the file
+		if found
+			opens the requested file in binary mode
+			echoes its data
+			closes file
+		else
+			error code, and connection close
+
+#whatsapp chat system
+port no acts as contact number
+
+when a user connects check his database if messages are found send only when he opens a particluar chat
+when a user sends a message if the receipient is online send him else send to database
+all users have to keep their port number as permanent
+
+#one to many chat(without DB)
+keep 2-3 listeners for new connections
+2-3 thread for accepting a connection
+1 thread for forground handling
+1 thread for each client communication
+1 thread for counting new messages on all thread
+
+on server 1 main thread to launch specific chat asked by admin
+	(should list all active chat)
+when entered in a particular chat, display all messages from pipe
+put threads to sleep properly
+wake threads properly (might need signals!!)
+
+valid ports - 1024-65535
+
+launch server
+execute N threads for accepting connections(keeps executing as accept is blocking call)
+once accept is done, pass execution to a chat_handler() for respective thread
+do we need N chat_handler() (echo())
+or 1 chat_handler() with all required variable of it arriving as arguments so to avoid thread sync problem
+	will require defining a structure for a chat_handler() and creting array of structs for N chats
+single thread for open_client_fd()
+single thread for accept()???
+N thread for echo
+
+(might need a 2D array to trach port and thread ID)
+
+
+#SERVER
+k - no. of accepts at a time
+N - n number of users
+k threads for accepting connection requests
+n size array of connection fd's for each user
+1 main thread that allows admin to select a user to chat with
+1 thread for continuously reading content from selected user
+1 thread for continuosly writing content to selected user
+
+2. int ReadFromFD(int FD, char* content);
+1. int WriteToFD(int FD, char* content) //see if getting size is required
+3. int ReadMessage(int FD); 			//uses 1 
+4. int WriteMessage(int FD); 			//uses 2
+5. int ReadMultiMedia(int FD); 		//uses 1 
+6. int WriteMultiMedia(int FD); 	//uses 2 
+7. int CheckMessageType(int FD);	//checks if upcoming content is message or MultiMedia
+
+
+#CLIENT
+1 thread for main
+1 thread continuos reading			// when message arrive, should tell main thread to display it on STDOUT
+1 thread for continuos writing
+
+1st finish for message
+then setup comman file exchange mechanism
+then finish for Download
+then extend Download to MultiMedia
+then merge for using both message and MultiMedia
+then do continuous and simultaneous reading writing on both ends
+
+reader // receives 1 or 2 as int and calls appropriate function
+CheckMessageType // returns 1 for message, 2 for file after reading 1st byte
+
+
+
+client-server-file-transfer-in-c-using-sockets
+client-server-file-transfer-in-c-using-sockets-with-multiple-clients
+
+file download system(N clients)
+
+terminal chat system
